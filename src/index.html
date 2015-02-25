@@ -46,21 +46,37 @@
 			}
 
 			var map;
-			var gpsData; // Loaded JSON file of data
+			var gpsData, zoomCache; // Loaded JSON file of data
+			var dataLoaded;
+			var year;
 
 			var pinColorIndex; // Next color to use
 			var pinColors; // List of pin colors
+			var pinImage, pinShadow;
+			
 			var infowindow;
-			var timeout; // How often to drop next pin
+			var dropPinTimeout; // How often to drop next pin
 
 			function initialize() {
 				var myLatlng = new google.maps.LatLng(28.4100805556, -80.6151741667);
+				
+				dataLoaded = false;
+				year = 0;
 
 				var mapOptions = {
 					zoom : 2,
 					center : myLatlng
 				};
 				map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+				google.maps.event.addListener(map, "bounds_changed", function() {
+					// Reset plotting new points
+					i = 0;
+					window.clearInterval(dropPinTimeout);
+					dropPinTimeout = setInterval(function() {
+						dropPins2();
+					}, timeout);
+				});
+
 				pinColorIndex = -1;
 				pinColors = ["FF0000", "E42CF5", "9E1AEB", "441AEB", "1AACEB", "13D695", "27D613", "FFF782", "F5A822", "FA5D2D", "FFFFFF"];
 
@@ -68,60 +84,85 @@
 					content : "placeholder..."
 				});
 
-				timeout = 2000;
+				var timeout = 500;
 				loadScript("data/data.json", function() {
+					pinColorIndex = -1;
 					i = 0;
 					gpsData = JSON.parse(data);
-					setInterval(function() {
-						dropPins();
+					zoomCache = JSON.parse(zoomCache);
+					dataLoaded = true;
+					dropPinTimeout = setInterval(function() {
+						dropPins2();
 					}, timeout);
 				});
 			}
 
-			function dropPins() {
-				pinColorIndex += 1;
-				pinColorIndex = pinColorIndex % pinColors.length;
-				var pinColor = pinColors[pinColorIndex];
-				var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor, new google.maps.Size(21, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34));
-				var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow", new google.maps.Size(40, 37), new google.maps.Point(0, 0), new google.maps.Point(12, 35));
+			function nextColor() {
+				pinColor = pinColors[year % pinColors.length];
+				pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor, new google.maps.Size(21, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34));
+				pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow", new google.maps.Size(40, 37), new google.maps.Point(0, 0), new google.maps.Point(12, 35));
+			}
 			
-				// Drop pins per year
-
-				year = 0;
-				if (i < gpsData.length) {
-					year = new Date(gpsData[i]["date"]).getFullYear();
+			function addPin(obj) {
+				var myLatlng = new google.maps.LatLng(obj["lat"], obj["lng"]);
+				var marker = new google.maps.Marker({
+					position : myLatlng,
+					map : map,
+					animation : google.maps.Animation.DROP,
+					title : obj["album"] + ":" + obj["file"],
+					icon : pinImage,
+					shadow : pinShadow,
+					gpsIndex : obj["idx"]
+				});
+				google.maps.event.addListener(marker, 'click', function() {
+					data = gpsData[this.gpsIndex];
+					date = new Date(data["date"]);
+					infowindow.setContent(date.toDateString() + ": " + data["album"] + ": " + obj["file"] + "   " + obj["idx"]);
+					infowindow.open(map, this);
+				});
+			}
+			
+			function dropPins2() {
+				if(!dataLoaded) {
+					return;
 				}
-				while (i < gpsData.length) {
-					var obj = gpsData[i];
+
+				var zoom = map.getZoom();
+				useCache =  zoom < zoomCache.length;
+				len = useCache ? zoomCache[zoom].length : gpsData.length;
+				
+				// Drop pins per year
+				year = 0;
+				if (i < len) {
+					idx = useCache ? zoomCache[zoom][i] : i;
+					year = new Date(gpsData[idx]["date"]).getFullYear();
+				}
+				
+				nextColor();
+
+				var bounds = map.getBounds();
+				while (i < len) {
+					idx = useCache ? zoomCache[zoom][i] : i;
+					var obj = gpsData[idx];
 					date = new Date(obj["date"]);
 					if (year != date.getFullYear()) {
 						break;
 					}
+					if(!obj["added"]) {
+						var myLatlng = new google.maps.LatLng(obj["lat"], obj["lng"]);
+						if(bounds.contains(myLatlng)) {
+							obj["idx"] = idx;
+							addPin(obj);
+							obj["added"] = true;
+						}
+					}
 					// console.log(obj);
-
-					var myLatlng = new google.maps.LatLng(obj["lat"], obj["lng"]);
-					var marker = new google.maps.Marker({
-						position : myLatlng,
-						map : map,
-						animation : google.maps.Animation.DROP,
-						title : obj["text"] + ":" + obj["file"],
-						icon : pinImage,
-						shadow : pinShadow,
-						gpsIndex : i
-					});
-					google.maps.event.addListener(marker, 'click', function() {
-						data = gpsData[this.gpsIndex];
-						date = new Date(data["date"]);
-						infowindow.setContent(date.toDateString() + ": " + data["text"] + ": " + obj["file"]);
-						infowindow.open(map, this);
-					});
 					i += 1;
 				}
-				if (i >= gpsData.length) {
-					window.clearInterval(timeout);
+				if (i >= zoomCache[zoom].length) {
+					window.clearInterval(dropPinTimeout);
 				}
 			}
-
 
 			google.maps.event.addDomListener(window, 'load', initialize);
 		</script>
