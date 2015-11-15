@@ -267,7 +267,7 @@ if __name__ == '__main__':
     # Use this to debug/not parse all your picutres again
     filename = None
     # Use this to hard code a path to parse
-    path = None
+    path = "F:\\Pictures\\Downloaded Albums\\115131001558224338921"
 
     outputFile = "data.json"
     if path is None and filename is None:
