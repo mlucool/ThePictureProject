@@ -1,7 +1,29 @@
 {
-    "extends": "eslint:recommended",
-    "env": {
-      "node": true,
-      "browser": true
-    }
+  "__DOC__": "Maybe we should change the rules, but this is ok for now",
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
+  "globals": {
+    "__DEV__": true
+  },
+  "env": {
+    "node": true,
+    "browser": true
+  },
+  "plugins": [
+    "react",
+    "babel"
+  ],
+  "ecmaFeatures": { "modules": true, "jsx": true},
+  "rules": {
+    "indent": [2, 4],
+    "quotes": [2, "single", "avoid-escape"],
+    "linebreak-style": [2, "unix"],
+    "arrow-body-style": [2, "as-needed"],
+    "comma-dangle": [2, "never"],
+    "eqeqeq": [2, "allow-null"],
+    "consistent-return": 2,
+    "no-shadow": 2
+  }
 }
+
+

@@ -4,3 +4,4 @@
 .pydevproject
 .idea
 node_modules
+dist/bundle.js

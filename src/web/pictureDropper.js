@@ -4,12 +4,12 @@
 /*global google*/
 function loadScript(url, callback) {
 
-    var script = document.createElement("script");
-    script.type = "text/javascript";
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
 
     if (script.readyState) {//IE
         script.onreadystatechange = function () {
-            if (script.readyState == "loaded" || script.readyState == "complete") {
+            if (script.readyState === 'loaded' || script.readyState === 'complete') {
                 script.onreadystatechange = null;
                 callback();
             }
@@ -21,7 +21,7 @@ function loadScript(url, callback) {
     }
 
     script.src = url;
-    document.getElementsByTagName("head")[0].appendChild(script);
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 var map;
@@ -47,7 +47,7 @@ function initialize() {
         center: myLatlng
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-    google.maps.event.addListener(map, "bounds_changed", function () {
+    google.maps.event.addListener(map, 'bounds_changed', function () {
         // Reset plotting new points
         i = 0;
         window.clearInterval(dropPinTimeout);
@@ -56,17 +56,18 @@ function initialize() {
         }, timeout);
     });
 
-    pinColors = ["FF0000", "E42CF5", "9E1AEB", "441AEB", "1AACEB", "13D695", "27D613", "FFF782", "F5A822", "FA5D2D", "FFFFFF"];
+    pinColors = ['FF0000', 'E42CF5', '9E1AEB', '441AEB', '1AACEB', '13D695', '27D613', 'FFF782', 'F5A822', 'FA5D2D', 'FFFFFF'];
 
     infowindow = new google.maps.InfoWindow({
-        content: "placeholder..."
+        content: 'placeholder...'
     });
 
     var timeout = 500;
-    loadScript("../data/data.json", function () {
+    loadScript('../data/data.json', function () {
         i = 0;
         // Ugly how we use data :(
-        gpsData = JSON.parse(data); /*global data*/
+        gpsData = JSON.parse(data);
+        /*global data*/
         zoomCache = JSON.parse(zoomCache);
         dataLoaded = true;
         dropPinTimeout = setInterval(function () {
@@ -77,25 +78,25 @@ function initialize() {
 
 function nextColor() {
     var pinColor = pinColors[year % pinColors.length];
-    pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor, new google.maps.Size(21, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34));
-    pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow", new google.maps.Size(40, 37), new google.maps.Point(0, 0), new google.maps.Point(12, 35));
+    pinImage = new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + pinColor, new google.maps.Size(21, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34));
+    pinShadow = new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_shadow', new google.maps.Size(40, 37), new google.maps.Point(0, 0), new google.maps.Point(12, 35));
 }
 
 function addPin(obj) {
-    var myLatlng = new google.maps.LatLng(obj["lat"], obj["lng"]);
+    var myLatlng = new google.maps.LatLng(obj['lat'], obj['lng']);
     var marker = new google.maps.Marker({
         position: myLatlng,
         map: map,
         animation: google.maps.Animation.DROP,
-        title: obj["album"] + ":" + obj["file"],
+        title: obj['album'] + ':' + obj['file'],
         icon: pinImage,
         shadow: pinShadow,
-        gpsIndex: obj["idx"]
+        gpsIndex: obj['idx']
     });
     google.maps.event.addListener(marker, 'click', function () {
         var data = gpsData[this.gpsIndex];
-        var date = new Date(data["date"]);
-        infowindow.setContent(date.toDateString() + ": " + data["album"] + ": " + obj["file"] + "   " + obj["idx"]);
+        var date = new Date(data['date']);
+        infowindow.setContent(date.toDateString() + ': ' + data['album'] + ': ' + obj['file'] + '   ' + obj['idx']);
         infowindow.open(map, this);
     });
 }
@@ -114,7 +115,7 @@ function dropPins2() {
     year = 0;
     if (i < len) {
         idx = useCache ? zoomCache[zoom][i] : i;
-        year = new Date(gpsData[idx]["date"]).getFullYear();
+        year = new Date(gpsData[idx]['date']).getFullYear();
     }
 
     nextColor();
@@ -123,16 +124,16 @@ function dropPins2() {
     while (i < len) {
         idx = useCache ? zoomCache[zoom][i] : i;
         var obj = gpsData[idx];
-        var date = new Date(obj["date"]);
-        if (year != date.getFullYear()) {
+        var date = new Date(obj['date']);
+        if (year !== date.getFullYear()) {
             break;
         }
-        if (!obj["added"]) {
-            var myLatlng = new google.maps.LatLng(obj["lat"], obj["lng"]);
+        if (!obj['added']) {
+            var myLatlng = new google.maps.LatLng(obj['lat'], obj['lng']);
             if (bounds.contains(myLatlng)) {
-                obj["idx"] = idx;
+                obj['idx'] = idx;
                 addPin(obj);
-                obj["added"] = true;
+                obj['added'] = true;
             }
         }
         // console.log(obj);
