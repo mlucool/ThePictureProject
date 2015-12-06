@@ -4,7 +4,7 @@
  * Waiting on: https://github.com/skratchdot/react-bootstrap-daterangepicker
  */
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import {fromJS} from 'immutable';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
@@ -12,20 +12,17 @@ import moment from 'moment';
 
 export class YearFilter extends React.Component {
     static propTypes = {
-        years: React.PropTypes.object.isRequired,
-        dateFilter: React.PropTypes.object
+        years: PropTypes.object.isRequired,
+        dateFilter: PropTypes.object
     };
-    static defaultProps = fromJS({years: {}, dateFilter: {}}).toObject();
+    static defaultProps = fromJS({dateFilter: {}}).toObject();
 
     shouldComponentUpdate = shouldPureComponentUpdate;
 
     static toDateRange(immutableRange) {
         let min = immutableRange.get('min');
         let max = immutableRange.get('max');
-        if (min && max) {
-            return {min: immutableRange.get('min'), max: immutableRange.get('max')}
-        }
-        return undefined;
+        return min && max ? {min, max} : undefined;
     }
 
     getRange() {

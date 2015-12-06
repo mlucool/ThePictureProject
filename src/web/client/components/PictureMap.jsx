@@ -1,86 +1,64 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import GoogleMap from 'google-map-react';
-import {fromJS} from 'immutable';
+import {List, Map, fromJS} from 'immutable';
+import {setMapBounds} from '../actions/actionCreators';
+import PictureMarker from './PictureMarker';
 
-const MARKER_SIZE = 400;
-const greatPlaceStyle = {
-    width: MARKER_SIZE,
-    height: MARKER_SIZE
-};
-
-const K_WIDTH = 60;
-const K_HEIGHT = 60;
-
-const greatPlaceStyle2 = {
-    // initially any map object has left top corner at lat lng coordinates
-    // it's on you to set object origin to 0,0 coordinates
-    position: 'absolute',
-    width: K_WIDTH,
-    height: K_HEIGHT,
-    left: -K_WIDTH / 2,
-    top: -K_HEIGHT / 2,
-
-    border: '5px solid #f44336',
-    borderRadius: K_HEIGHT,
-    backgroundColor: 'white',
-    textAlign: 'center',
-    color: '#3f51b5',
-    fontSize: 16,
-    fontWeight: 'bold',
-    padding: 4
-};
-
-class SimplePlace extends React.Component {
-    static defaultProps = {
-        lat: 40.7127840,
-        lng: -74.0059410,
-        text: 'foobar'
-    };
-
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return <div style={greatPlaceStyle2}>
-            {this.props.text}
-        </div>
-    }
-}
-
-// We can't change default center EVER so I'd have to think deeper about this
-// Or just look at source
-let center = {lat: 40.7127840, lng: -74.0059410};
 export class PictureMap extends React.Component {
     static propTypes = {
-        center: React.PropTypes.object,
-        zoom: React.PropTypes.number,
-        places: React.PropTypes.object
+        center: PropTypes.object,
+        zoom: PropTypes.number,
+        places: PropTypes.object,
+        zoomCache: PropTypes.object
     };
     static defaultProps = fromJS({
-        center: center,
+        center: {lat: 39.725242779009, lng: -104.976973874},
         zoom: 9,
-        places: {
-            foo: {lat: 40.7127840, lng: -74.0059410},
-            baz: {lat: 40.7527840, lng: -74.0059410}
-        }
+        zoomCache: [],
+        data: []
     }).toObject();
+
+    _onChange({center, zoom, bounds}) {
+        // FIXME: This should get refactored outside and be dumb
+        this.props.dispatch(setMapBounds(zoom, center, bounds));
+    }
 
     shouldComponentUpdate = shouldPureComponentUpdate;
 
     constructor(props) {
         super(props);
+        // React components using ES6 classes no longer autobind this to non React methods.
+        this._onChange = this._onChange.bind(this);
     }
 
     render() {
-        const MARKERS = this.props.places.map((val, key) => <SimplePlace key={key} lat={val.get('lat')}
-                                                                         lng={val.get('lng')} text={key}/>).toArray();
+        const that = this;
+        const zoomIdx = that.props.zoom < that.props.zoomCache.count() ? that.props.zoom : that.props.zoomCache.count() - 1;
+        const MARKERS = that.props.zoomCache.get(zoomIdx, List()).map(function (val) {
+            const data = that.props.data.get(val, Map());
+            if (data.has('lat') && data.has('lng')) {
+                // Strongly assumes that the that.props.data never reorders or shrinks
+                // This makes the key easy!
+                return <PictureMarker key={val}
+                                      lat={data.get('lat')}
+                                      lng={data.get('lng')}
+                                      picture={data}
+                                      dispatch={that.props.dispatch}
+                />
+            }
+            // We could have filtered, but no need because this should NEVER happen
+            return <div></div>;
+        }).toArray();
         return (
-            <div style={greatPlaceStyle}>
+            // FIXME: move style
+            <div className="pictureMap" style={{position: 'absolute', right: 0, top: 0, width: '70%', height: '100%'}}>
                 <GoogleMap
-                    defaultCenter={center}
-                    defaultZoom={this.props.zoom}>
+                    // Need a center or it will not render, but changing it causes issues
+                    center={this.props.center.toJS()}
+                    zoom={this.props.zoom}
+                    onChange={this._onChange}
+                >
                     {MARKERS}
                 </GoogleMap>
             </div>

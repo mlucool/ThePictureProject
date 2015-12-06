@@ -1,7 +1,7 @@
 /* eslint-disable no-console*/
-// FIXME: The above rule is jus for now and should be removed
+// FIXME: The above rule is just for now and should be removed
 import * as consts from '../actions/consts'
-import {fromJS} from 'immutable';
+import {Set, fromJS} from 'immutable';
 
 let mydata = require('json!../../../data/data2.json');
 
@@ -9,6 +9,7 @@ function defaultState() {
     const albums = {};
     const places = {};
     mydata.data.forEach(function (element, index) {
+        element.id = index;
         if (element.date) {
             element.date = new Date(element.date);
         }
@@ -28,7 +29,6 @@ function defaultState() {
                 let city = element.politics.city || 'nocity';
                 if (country[city]) {
                     country[city].push(index);
-                    country[city].push(index);
                 } else {
                     country[city] = [index];
                 }
@@ -40,6 +40,9 @@ function defaultState() {
     });
     const filters = {
         date: {min: undefined, max: undefined},
+        selected: undefined,
+        albums: new Set(), // Strings
+        places: new Set(), // Strings
         text: ''
     };
     if (mydata.data && mydata.data.length > 0) {
@@ -48,8 +51,9 @@ function defaultState() {
     }
     return fromJS({
         googlemap: {
-            center: {lat: 40.7127840, lng: -74.0059410},
-            zoom: 9
+            center: {lat: 39.725242779009, lng: -104.976973874}, // Denver
+            zoom: 11,
+            bounds: undefined
         },
         data: mydata.data,
         albums: albums,
@@ -57,25 +61,38 @@ function defaultState() {
         filters: filters,
         places: places,
         stats: {date: filters.date}
-        /*
-         places: {
-         foo: {lat: 40.7127840, lng: -74.0059410},
-         baz: {lat: 40.7527840, lng: -74.0059410}
-         },
-         years: {'1/2/1924': {}, '9/5/1992': {}}
-         */
     });
 }
 
-function ADD_PLACE(state, place) {
-    let newState = state.setIn(['places', place.get('name')], place);
-    return newState;
+function ADD_PLACE(state, {place}) {
+    return state.setIn(['places', place.get('name')], place);
+}
+
+function SET_MAP_BOUNDS(state, {center, zoom, bounds}) {
+    return state
+        .update('googlemap', mapInfo => mapInfo.merge({center, zoom, bounds}));
+}
+
+function SET_SELECTED(state, {id}) {
+    return state.setIn(['filters', 'selected'], id);
+}
+
+function SET_FILTER_GROUP(state, {filter, name}) {
+    return state.updateIn(['filters', filter], function(albums) {
+        return albums.clear().add(name); // Easy for multi-select soon
+    });
 }
 
 export default function (state = defaultState(), action) {
     switch (action.type) {
     case consts.ADD_PLACE:
-        return ADD_PLACE(state, action.place);
+        return ADD_PLACE(state, action.payload);
+    case consts.SET_MAP_BOUNDS:
+        return SET_MAP_BOUNDS(state, action.payload);
+    case consts.SET_SELECTED:
+        return SET_SELECTED(state, action.payload);
+    case consts.SET_FILTER_GROUP:
+        return SET_FILTER_GROUP(state, action.payload);
     }
     return state;
 }

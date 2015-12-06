@@ -22,7 +22,8 @@
     "comma-dangle": [2, "never"],
     "eqeqeq": [2, "allow-null"],
     "consistent-return": 2,
-    "no-shadow": 2
+    "no-shadow": 2,
+    "eol-last": [2, "unix"]
   }
 }
 

@@ -6,17 +6,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {PlacesList} from './components/PlacesList';
 import {YearFilter} from './components/YearFilter';
-import {PlaceSummary} from './components/PlaceSummary';
 import {PictureMap} from './components/PictureMap';
-import {Map, fromJS} from 'immutable';
+import {PictureInfo} from './components/PictureInfo';
+import {Map, List} from 'immutable';
 import reducer from './stores/reducer';
 import {createStore, compose} from 'redux';
 import {Provider, connect} from 'react-redux';
-import * as actionCreator from './actions/actionCreators'
 // Redux DevTools store enhancers
 import { devTools, persistState } from 'redux-devtools';
 // React components for Redux DevTools
 import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+import {setAlbum, setPlace} from './actions/actionCreators';
 
 // FIXME: Wrap with if development + if window
 window.React = React;
@@ -37,48 +37,57 @@ const YearFilterContainer = connect(function (state) {
     }
 })(YearFilter);
 
+function onPlaceSelected(name) {
+    store.dispatch(setPlace(name));
+}
 const PlacesListContainer = connect(function (state) {
     return {
-        places: state.get('places', Map())
+        header: 'Countries',
+        places: state.get('places', Map()),
+        onSelection: onPlaceSelected
     }
 })(PlacesList);
 
-const PlaceSummaryContainer = connect(function (state) {
+function onAlbumSelected(name) {
+    store.dispatch(setAlbum(name));
+}
+const AlbumListContainer = connect(function (state) {
     return {
-        places: state.get('places', Map())
+        header: 'Albums',
+        places: state.get('albums', Map()),
+        onSelection: onAlbumSelected
     }
-})(PlaceSummary);
+})(PlacesList);
 
 const PictureMapContainer = connect(function (state) {
     return {
-        // Need a center or it will not render
-        // Can't ever change so  state.get('center',  will not work :/
-        // center: state.get('center', Map({lat: 40.7127840, lng: -74.0059410})),
-        zoom: state.get('zoom', 9),
-        places: state.get('places', Map())
+        // Need a center/zoom or it will not render
+        center: state.getIn(['googlemap', 'center'], Map({lat: 39.725242779009, lng: -104.976973874})),
+        zoom: state.getIn(['googlemap', 'zoom'], 11),
+        places: state.get('places', Map()),
+        zoomCache: state.get('zoomCache', List()),
+        data: state.get('data', List())
     }
 })(PictureMap);
 
-let timeoutCt = 0;
-let id = setInterval(function () {
-    ++timeoutCt;
-    if (timeoutCt === 3) {
-        clearInterval(id);
+const PictureInfoContainer = connect(function (state) {
+    const selected = state.getIn(['filters', 'selected']);
+    const picture = Number.isInteger(selected) ? state.get('data', List()).get(selected) : Map();
+    return {
+        picture: picture
     }
-    let name = 'p' + timeoutCt;
-    let diff = timeoutCt / 1000;
-    let place = {name: name, lat: 40.7527840 + diff, lng: -74.0059410 + diff};
-    store.dispatch(actionCreator.addPlace(fromJS(place)));
-}, 1000);
-
+})(PictureInfo);
 
 ReactDOM.render(
     <div>
         <Provider store={store}>
             <div>
-                <YearFilterContainer/>
-                <PlacesListContainer />
-                <PlaceSummaryContainer />
+                <div style={{position: 'absolute', left: 0, top: 0, width: '30%', height: '100%'}}>
+                    <PictureInfoContainer />
+                    <YearFilterContainer />
+                    <PlacesListContainer />
+                    <AlbumListContainer />
+                </div>
                 <PictureMapContainer />
             </div>
         </Provider>
