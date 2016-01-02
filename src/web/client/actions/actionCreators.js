@@ -48,3 +48,14 @@ export function setPlace(name) {
         }
     }
 }
+
+export function setDateRange(startDate, endDate) {
+    return {
+        type: consts.SET_DATE_RANGE,
+        payload: {
+            filter: 'date',
+            startDate,
+            endDate
+        }
+    }
+}

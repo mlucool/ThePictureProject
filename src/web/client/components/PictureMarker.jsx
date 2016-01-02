@@ -3,7 +3,7 @@
  */
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import {fromJS} from 'immutable';
+import {Map, fromJS} from 'immutable';
 import {setSelected} from '../actions/actionCreators';
 
 const K_WIDTH = 60;
@@ -30,7 +30,7 @@ const PictureMarkerStyle = {
 
 export default class PictureMarker extends React.Component {
     static propTypes = {
-        picture: PropTypes.object,
+        picture: PropTypes.instanceOf(Map),
         dispatch: PropTypes.func
     };
     static defaultProps = fromJS({

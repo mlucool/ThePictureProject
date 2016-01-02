@@ -4,19 +4,24 @@ import GoogleMap from 'google-map-react';
 import {List, Map, fromJS} from 'immutable';
 import {setMapBounds} from '../actions/actionCreators';
 import PictureMarker from './PictureMarker';
+import {isShown} from '../helpers';
 
 export class PictureMap extends React.Component {
     static propTypes = {
-        center: PropTypes.object,
+        center: PropTypes.instanceOf(Map),
         zoom: PropTypes.number,
-        places: PropTypes.object,
-        zoomCache: PropTypes.object
+        places: PropTypes.instanceOf(Map),
+        zoomCache: PropTypes.instanceOf(List),
+        data: PropTypes.instanceOf(List),
+        filters: PropTypes.instanceOf(Map)
     };
     static defaultProps = fromJS({
         center: {lat: 39.725242779009, lng: -104.976973874},
         zoom: 9,
+        places: {},
         zoomCache: [],
-        data: []
+        data: [],
+        filters: {}
     }).toObject();
 
     _onChange({center, zoom, bounds}) {
@@ -34,10 +39,15 @@ export class PictureMap extends React.Component {
 
     render() {
         const that = this;
-        const zoomIdx = that.props.zoom < that.props.zoomCache.count() ? that.props.zoom : that.props.zoomCache.count() - 1;
-        const MARKERS = that.props.zoomCache.get(zoomIdx, List()).map(function (val) {
-            const data = that.props.data.get(val, Map());
-            if (data.has('lat') && data.has('lng')) {
+        const zoomIdx = that.props.zoom < that.props.zoomCache.count()
+            ? that.props.zoom : that.props.zoomCache.count() - 1;
+        const MARKERS = that.props.zoomCache.get(zoomIdx, List())
+            .filter((val) => {
+                const data = that.props.data.get(val, Map());
+                return data.has('lat') && data.has('lng') && isShown(this.props.filters, data);
+            })
+            .map(function (val) {
+                const data = that.props.data.get(val, Map());
                 // Strongly assumes that the that.props.data never reorders or shrinks
                 // This makes the key easy!
                 return <PictureMarker key={val}
@@ -46,10 +56,7 @@ export class PictureMap extends React.Component {
                                       picture={data}
                                       dispatch={that.props.dispatch}
                 />
-            }
-            // We could have filtered, but no need because this should NEVER happen
-            return <div></div>;
-        }).toArray();
+            }).toArray();
         return (
             // FIXME: move style
             <div className="pictureMap" style={{position: 'absolute', right: 0, top: 0, width: '70%', height: '100%'}}>

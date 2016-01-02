@@ -2,8 +2,9 @@
 // FIXME: The above rule is just for now and should be removed
 import * as consts from '../actions/consts'
 import {Set, fromJS} from 'immutable';
+import moment from 'moment';
 
-let mydata = require('json!../../../data/data2.json');
+const mydata = require('json!../../../data/data2.json');
 
 function defaultState() {
     const albums = {};
@@ -38,16 +39,17 @@ function defaultState() {
             }
         }
     });
+
     const filters = {
         date: {min: undefined, max: undefined},
         selected: undefined,
-        albums: new Set(), // Strings
-        places: new Set(), // Strings
+        albums: new Set(Object.keys(albums)), // Strings
+        places: new Set(Object.keys(places)), // Strings
         text: ''
     };
     if (mydata.data && mydata.data.length > 0) {
-        filters.date.min = mydata.data[0].date;
-        filters.date.max = mydata.data[mydata.data.length - 1].date;
+        filters.date.min = moment(mydata.data[0].date).startOf('day').toDate();
+        filters.date.max = moment(mydata.data[mydata.data.length - 1].date).endOf('day').toDate();
     }
     return fromJS({
         googlemap: {
@@ -64,35 +66,43 @@ function defaultState() {
     });
 }
 
-function ADD_PLACE(state, {place}) {
+function AddPlace(state, {place}) {
     return state.setIn(['places', place.get('name')], place);
 }
 
-function SET_MAP_BOUNDS(state, {center, zoom, bounds}) {
+function SetMapBounds(state, {center, zoom, bounds}) {
     return state
         .update('googlemap', mapInfo => mapInfo.merge({center, zoom, bounds}));
 }
 
-function SET_SELECTED(state, {id}) {
+function SetSelected(state, {id}) {
     return state.setIn(['filters', 'selected'], id);
 }
 
-function SET_FILTER_GROUP(state, {filter, name}) {
+function SetFilterGroup(state, {filter, name}) {
     return state.updateIn(['filters', filter], function(albums) {
         return albums.clear().add(name); // Easy for multi-select soon
     });
 }
 
+function SetDateRange(state, {startDate, endDate}) {
+    const startDateStart = moment(startDate).startOf('day').toDate();
+    const endDateEnd = moment(endDate).endOf('day').toDate();
+    return state.setIn(['filters', 'date'], fromJS({min: startDateStart, max: endDateEnd}));
+}
+
 export default function (state = defaultState(), action) {
     switch (action.type) {
     case consts.ADD_PLACE:
-        return ADD_PLACE(state, action.payload);
+        return AddPlace(state, action.payload);
     case consts.SET_MAP_BOUNDS:
-        return SET_MAP_BOUNDS(state, action.payload);
+        return SetMapBounds(state, action.payload);
     case consts.SET_SELECTED:
-        return SET_SELECTED(state, action.payload);
+        return SetSelected(state, action.payload);
     case consts.SET_FILTER_GROUP:
-        return SET_FILTER_GROUP(state, action.payload);
+        return SetFilterGroup(state, action.payload);
+    case consts.SET_DATE_RANGE:
+        return SetDateRange(state, action.payload);
     }
     return state;
 }

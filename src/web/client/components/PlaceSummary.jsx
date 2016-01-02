@@ -4,15 +4,18 @@
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import {fromJS} from 'immutable';
+import classNames from 'classnames';
+
+import './PlaceSummary.css';
 
 export class PlaceSummary extends React.Component {
     static propTypes = {
         name: PropTypes.string.isRequired,
         pictures: PropTypes.object.isRequired,
-        onClick: PropTypes.func.isRequired
+        onClick: PropTypes.func.isRequired,
+        isFiltered: PropTypes.bool
     };
-    static defaultProps = fromJS({
-    }).toObject(); // Makes everything but the middle props themselves immutable (simplifies things later)
+    static defaultProps = fromJS({isFiltered: false}).toObject(); // Makes everything but the middle props themselves immutable (simplifies things later)
 
     shouldComponentUpdate = shouldPureComponentUpdate;
 
@@ -30,7 +33,9 @@ export class PlaceSummary extends React.Component {
     }
 
     render() {
-        return <div className="PlaceSummary">
+        const classes = classNames('PlaceSummary', {'filtered': this.props.isFiltered});
+
+        return <div className={classes}>
             <p onClick={this.props.onClick}>{this.props.name} ({this.getNumPictures()})</p>
         </div>;
     }

@@ -5,12 +5,13 @@
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import {PlaceSummary} from './PlaceSummary';
-import {fromJS} from 'immutable';
+import {Set, Map, fromJS} from 'immutable';
 
 export class PlacesList extends React.Component {
     static propTypes = {
         header: PropTypes.string,
-        places: PropTypes.object,
+        places: PropTypes.instanceOf(Map),
+        filtered: PropTypes.instanceOf(Set), // If its in here, it is filtered in!
         onSelection: PropTypes.func
     };
     static defaultProps = fromJS({places: {}, header: '', onSelection: f=>f}).toObject();
@@ -25,19 +26,22 @@ export class PlacesList extends React.Component {
 
     _getOnChildClick(name) {
         const that = this;
-        return function() {
+        return function () {
             that.props.onSelection(name);
         }
     }
 
     render() {
+        const that = this;
         return <div className="PlacesList">
             {this.props.header} ({this.props.places.count()}):
-            {this.props.places.map((place, name) =>
-            <div>
-                <PlaceSummary name={name} pictures={place} onClick={this._getOnChildClick(name)} />
-            </div>
-                )}
+            {this.props.places.map(function mapPlaces(place, name) {
+                const isFiltered =  that.props.filtered.count() === 0 ||that.props.filtered.has(name);
+                return <div>
+                    <PlaceSummary name={name} pictures={place} isFiltered={isFiltered}
+                                  onClick={that._getOnChildClick(name)}/>
+                </div>;
+            })}
         </div>;
     }
 }

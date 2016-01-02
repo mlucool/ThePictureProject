@@ -6,14 +6,15 @@
 
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import {fromJS} from 'immutable';
+import {Map, fromJS} from 'immutable';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import moment from 'moment';
 
 export class YearFilter extends React.Component {
     static propTypes = {
-        years: PropTypes.object.isRequired,
-        dateFilter: PropTypes.object
+        years: PropTypes.instanceOf(Map).isRequired,
+        setDateFilter: PropTypes.func.isRequired,
+        dateFilter: PropTypes.instanceOf(Map)
     };
     static defaultProps = fromJS({dateFilter: {}}).toObject();
 
@@ -41,6 +42,15 @@ export class YearFilter extends React.Component {
         return this.props.years.count() !== 0;
     }
 
+    _dateSet = (event, picker) => {
+        this.props.setDateFilter(picker.startDate.toDate(), picker.endDate.toDate());
+    };
+
+    _clearFilter = () => {
+        const range = this.getRange();
+        this.props.setDateFilter(range.min, range.max);
+    };
+
     constructor(props) {
         super(props);
     }
@@ -50,15 +60,19 @@ export class YearFilter extends React.Component {
         const currentFilter = this.getCurrentFilter();
         return <div className="YearFilter">
             {this.isValid() ?
-            <div>
-                <DateRangePicker minDate={range.min} maxDate={range.max}
-                                 startDate={currentFilter.min} endDate={currentFilter.max}
-                                 showDropdowns={true}>
-                    <p>Showing from: {this.formatDate(currentFilter.min)} to {this.formatDate(currentFilter.max)} </p>
-                </DateRangePicker>
-            </div> :
-            <p>No Valid Data</p>
-                }
+                <div>
+                    <DateRangePicker minDate={moment(range.min)} maxDate={moment(range.max)}
+                                     startDate={moment(currentFilter.min)} endDate={moment(currentFilter.max)}
+                                     showDropdowns={true}
+                                     onApply={this._dateSet}>
+                        <p>
+                            Showing from: {this.formatDate(currentFilter.min)} to {this.formatDate(currentFilter.max)}
+                        </p>
+                    </DateRangePicker>
+                    <button onClick={this._clearFilter}>Clear Date Filter</button>
+                </div> :
+                <p>No Valid Data</p>
+            }
         </div>;
     }
 }

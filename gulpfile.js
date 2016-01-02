@@ -1,7 +1,8 @@
 const gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     gutil = require('gulp-util'),
-    Promise = require('bluebird');
+    Promise = require('bluebird'),
+    jsdoc = require('gulp-jsdoc3');
 
 var jsFiles = ['*.js', 'src/**/*.js', 'src/**/*.jsx'];
 
@@ -10,6 +11,11 @@ gulp.task('lint', function () {
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
+});
+
+gulp.task('doc', function (cb) {
+    gulp.src(['README.md', './src/**/*.js'], {read: false})
+        .pipe(jsdoc({}, cb));
 });
 
 gulp.task('lint-watch', function () {
@@ -55,7 +61,7 @@ function SpawnTask(cmd, args) {
         child.on('error', function (error) {
             gutil.log(gutil.colors.red(error));
             gutil.beep();
-            reject(code);
+            reject(error);
         });
     });
 }
