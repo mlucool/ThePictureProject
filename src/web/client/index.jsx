@@ -10,7 +10,7 @@ import {PictureMap} from './components/PictureMap';
 import {PictureInfo} from './components/PictureInfo';
 import {ScrollingPictureList} from './components/ScrollingPictureList';
 import {Map, Set, List} from 'immutable';
-import reducer from './stores/reducer';
+import reducer from './reducers/reducer';
 import {createStore, compose, applyMiddleware} from 'redux';
 import {Provider, connect} from 'react-redux';
 import DevTools from './components/DevTools';

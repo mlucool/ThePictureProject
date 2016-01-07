@@ -5,7 +5,6 @@ import {Set, fromJS} from 'immutable';
 import moment from 'moment';
 import rbush from 'rbush'; // Helps with performance when there is lots of data
 import _ from 'underscore';
-import mercator from 'mercator-projection';
 
 const mydata = require('json!../../../data/data.json');
 
@@ -34,18 +33,14 @@ function defaultState() {
         filters.date.min = moment(mydata.records[0].date).startOf('day').toDate();
         filters.date.max = moment(mydata.records[mydata.records.length - 1].date).endOf('day').toDate();
     }
-    // We store the mercator projections: it helps simplify the world wrapping problem by making it easy to reason about
-    // Only positive numbers, y won't wrap because of google maps, so only worry about x
-    const boundsTree = rbush(9, ['.minX', '.minY', '.maxX', '.maxY']);
+
+    const boundsTree = rbush(9, ['.minLng', '.minLat', '.maxLng', '.maxLat']);
     const data =
         _.filter(_.keys(mydata.albums), function hasLatLngBounding(name) {
             return mydata.albums[name].boundingBox && mydata.albums[name].boundingBox.minLng;
         }).map(function getRecord(name) {
             const boundingBox = mydata.albums[name].boundingBox;
-            const minWorld = mercator.fromLatLngToPoint({lat: boundingBox.minLat, lng: boundingBox.minLng});
-            const maxWorld = mercator.fromLatLngToPoint({lat: boundingBox.maxLat, lng: boundingBox.maxLng});
-            const bounds = getBounds(minWorld, maxWorld);
-            return {name: name, ...bounds};
+            return {name: name, ...boundingBox};
         });
     boundsTree.load(data); // Loading all at once makes later searches faster
 
@@ -65,14 +60,15 @@ function defaultState() {
     return state.set('boundsTree', boundsTree);
 }
 
-function getBounds(w1, w2) {
+function getBounds(p1, p2) {
     return {
-        minX: Math.min(w1.x, w2.x), minY: Math.min(w1.y, w2.y),
-        maxX: Math.max(w1.x, w2.x), maxY: Math.max(w1.y, w2.y)
+        minLng: Math.min(p1.lng, p2.lng), minLat: Math.min(p1.lat, p2.lat),
+        maxLng: Math.max(p1.lng, p2.lng), maxLat: Math.max(p1.lat, p2.lat)
     };
 }
+
 // We precomputed the bounding box, so we can easily skip a lot of computation of what should be shown
-// FIXME: Consider moving marking which is visible???? Change colors of albumns shown
+// FIXME: Consider moving marking which is visible???? Change colors of albums shown
 // We can than do the same for years and places...
 function GetViewedAlbums(state) {
     let nw = state.getIn(['googlemap', 'bounds', 'nw']);
@@ -83,33 +79,25 @@ function GetViewedAlbums(state) {
     }
     nw = nw.toJS();
     se = se.toJS();
-    const nwWorld = mercator.fromLatLngToPoint({lat: nw.lat, lng: nw.lng});
-    const seWorld = mercator.fromLatLngToPoint({lat: se.lat, lng: se.lng});
-
-    // Y must be ok because of the projection:
-    // https://developers.google.com/maps/documentation/javascript/maptypes#WorldCoordinates
-    if (nwWorld.x > seWorld.x) {
-        // We need to do two searches, nwWorld->256 and 0->seWorld
-        const tmpX = seWorld.x;
-        seWorld.x = 256; // 256 is the projection max
-        const results1 = doBoundsSearch(state, getBounds(nwWorld, seWorld));
-        nwWorld.x = 0;
-        seWorld.x = tmpX;
-        const results2 = doBoundsSearch(state, getBounds(nwWorld, seWorld));
+    // We started counting over...
+    if (nw.lng > se.lng) {
+        // We need to do two searches, lat->180 and -180->lat
+        // This is because lat/lng is cyclic
+        const tmpLng = se.lng;
+        se.lng = 180; // 256 is the projection max
+        const results1 = doBoundsSearch(state, getBounds(nw, se));
+        nw.lng = -180;
+        se.lng = tmpLng;
+        const results2 = doBoundsSearch(state, getBounds(nw, se));
         return results1.concat(results2);
     } else {
         // Normal search
-        return doBoundsSearch(state, getBounds(nwWorld, seWorld));
+        return doBoundsSearch(state, getBounds(nw, se));
     }
-    // I *think* this handles wrapping cases where lat/lng reset better
-    /*const bounds = {
-     minLng: Math.min(nw.lng, se.lng), minLat: Math.min(nw.lat, se.lat),
-     maxLng: Math.max(nw.lng, se.lng), maxLat: Math.max(nw.lat, se.lat)
-     }; */
 }
 
 function doBoundsSearch(state, bounds) {
-    const search = [bounds.minX, bounds.minY, bounds.maxX, bounds.maxY];
+    const search = [bounds.minLng, bounds.minLat, bounds.maxLng, bounds.maxLat];
     return state.get('boundsTree').search(search).map((entry) => entry.name);
 }
 

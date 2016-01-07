@@ -229,7 +229,7 @@ function postProcess() {
     })
 }
 
-function updateData() {
+function updateData() { // eslint-disable-line no-unused-vars
     const d = require('./data.json').records;
     d.forEach(record => records.push(record));
 

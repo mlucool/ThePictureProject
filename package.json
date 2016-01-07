@@ -64,7 +64,6 @@
     "gulp": "^3.9.0",
     "immutable": "^3.7.5",
     "json-loader": "^0.5.3",
-    "mercator-projection": "0.0.2",
     "moment": "^2.10.6",
     "object-assign": "^4.0.1",
     "rbush": "^1.4.2",
