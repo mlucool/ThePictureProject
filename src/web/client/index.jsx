@@ -116,7 +116,8 @@ const PictureInfoContainer = connect(function (state) {
 const ScrollingPictureListContainer = connect(function (state) {
     return {
         zoom: state.getIn(['googlemap', 'zoom'], 11),
-        zoomCache: state.get('zoomCache', List()),
+        inView: state.get('inView', Map()),
+        albums: state.get('albums', List()),
         data: state.get('records', List()),
         filters: state.get('filters', Map())
     }

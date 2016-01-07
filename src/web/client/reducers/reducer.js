@@ -6,40 +6,40 @@ import moment from 'moment';
 import rbush from 'rbush'; // Helps with performance when there is lots of data
 import _ from 'underscore';
 
-const mydata = require('json!../../../data/data.json');
+const myData = require('json!../../../data/data.json');
 
 function defaultState() {
     const NOTSET = 'NOT SET';
-    mydata.countries[NOTSET] = {nocity: []};
-    mydata.records.forEach(function (element, index) {
+    myData.countries[NOTSET] = {nocity: []};
+    myData.records.forEach(function (element, index) {
         if (element.date) {
             element.date = new Date(element.date);
         }
         if (!element.politics.country) {
             element.politics.country = NOTSET;
-            mydata.countries[NOTSET].nocity.push(index);
+            myData.countries[NOTSET].nocity.push(index);
         }
     });
 
     const filters = {
         date: {min: undefined, max: undefined},
         selected: undefined,
-        albums: new Set(Object.keys(mydata.albums)), // Strings
-        countries: new Set(Object.keys(mydata.countries)), // Strings
+        albums: new Set(Object.keys(myData.albums)), // Strings
+        countries: new Set(Object.keys(myData.countries)), // Strings
         text: ''
     };
 
-    if (mydata.records && mydata.records.length > 0) {
-        filters.date.min = moment(mydata.records[0].date).startOf('day').toDate();
-        filters.date.max = moment(mydata.records[mydata.records.length - 1].date).endOf('day').toDate();
+    if (myData.records && myData.records.length > 0) {
+        filters.date.min = moment(myData.records[0].date).startOf('day').toDate();
+        filters.date.max = moment(myData.records[myData.records.length - 1].date).endOf('day').toDate();
     }
 
     const boundsTree = rbush(9, ['.minLng', '.minLat', '.maxLng', '.maxLat']);
     const data =
-        _.filter(_.keys(mydata.albums), function hasLatLngBounding(name) {
-            return mydata.albums[name].boundingBox && mydata.albums[name].boundingBox.minLng;
+        _.filter(_.keys(myData.albums), function hasLatLngBounding(name) {
+            return myData.albums[name].boundingBox && myData.albums[name].boundingBox.minLng;
         }).map(function getRecord(name) {
-            const boundingBox = mydata.albums[name].boundingBox;
+            const boundingBox = myData.albums[name].boundingBox;
             return {name: name, ...boundingBox};
         });
     boundsTree.load(data); // Loading all at once makes later searches faster
@@ -50,10 +50,10 @@ function defaultState() {
             zoom: 11,
             bounds: undefined
         },
-        records: mydata.records,
-        albums: mydata.albums,
+        records: myData.records,
+        albums: myData.albums,
         filters: filters,
-        countries: mydata.countries,
+        countries: myData.countries,
         stats: {date: filters.date},
         inView: {albums: []}
     });

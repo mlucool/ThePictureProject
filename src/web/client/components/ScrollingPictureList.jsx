@@ -8,6 +8,7 @@ import Griddle from 'griddle-react';
 import moment from 'moment';
 import {isShown} from '../helpers';
 import Modal from 'react-modal';
+import _ from 'underscore';
 
 let aBadHackForData = {};
 const style = {
@@ -64,7 +65,8 @@ var ImageComp = React.createClass({
 export class ScrollingPictureList extends React.Component {
     static propTypes = {
         zoom: PropTypes.number.isRequired,
-        zoomCache: PropTypes.instanceOf(List).isRequired,
+        albums: PropTypes.instanceOf(Map),
+        inView: PropTypes.instanceOf(Map),
         data: PropTypes.instanceOf(List).isRequired,
         filters: PropTypes.instanceOf(Map).isRequired
     };
@@ -115,14 +117,16 @@ export class ScrollingPictureList extends React.Component {
         ];
         const columns = {};
         columnMetadata.forEach(v => columns[v['columnName']] = true);
-        const zoomIdx = that.props.zoom < that.props.zoomCache.count()
-            ? that.props.zoom : that.props.zoomCache.count() - 1;
-        const pictures = that.props.zoomCache.get(zoomIdx, List())
-            .filter((val) => {
+        // Array of arrays
+        const inBoundsAlbums = that.props.inView.get('albums', List());
+        const pictures = _.flatten(inBoundsAlbums.map((albumName) => {
+            const album = this.props.albums.get(albumName);
+            const zoomIdx = Math.min(that.props.zoom, album.get('zoomCache').count() - 1);
+
+            return album.get('zoomCache').get(zoomIdx, List()).filter((val) => {
                 const data = that.props.data.get(val, Map());
                 return isShown(this.props.filters, data);
-            })
-            .map(function (val) {
+            }).map(function (val) {
                 // FIXME: I know this is very inefficient but with griddle 1.0 I should rethink
                 // Just pulling out the columns we need
                 const picture = that.props.data.get(val, Map());
@@ -148,6 +152,8 @@ export class ScrollingPictureList extends React.Component {
                 }
                 return row;
             }).toJS();
+        }).toJS());
+
         return <div className='scrollingPictureList'>
             <Griddle results={pictures} useFixedHeader={true} resultsPerPage={10} bodyHeight={300}
                      enableInfiniteScroll={true} columnMetadata={columnMetadata}/>
