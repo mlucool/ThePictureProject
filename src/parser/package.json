@@ -1,0 +1,12 @@
+{
+  "name": "PictureParser",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "co": "^4.6.0",
+    "dstk": "0.0.2",
+    "exif-parser": "^0.1.9",
+    "node-geocoder": "^3.5.1",
+    "walk": "^2.3.9"
+  }
+}

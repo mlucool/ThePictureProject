@@ -2,9 +2,12 @@ const gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     gutil = require('gulp-util'),
     Promise = require('bluebird'),
+    sourcemaps = require('gulp-sourcemaps'),
+    babel = require('gulp-babel'),
     jsdoc = require('gulp-jsdoc3');
 
-var jsFiles = ['*.js', 'src/**/*.js', 'src/**/*.jsx'];
+var jsFiles = ['*.js', 'src/**/*.js', 'src/**/*.jsx', '!./**/node_modules/**/*' , '!./src/parser/compiled/**/*'];
+var parserSrcCode = ['src/parser/**.js'];
 
 gulp.task('lint', function () {
     return gulp.src(jsFiles)
@@ -23,6 +26,22 @@ gulp.task('lint-watch', function () {
 
     runSequence('lint', function () {
         gulp.watch(jsFiles, ['lint']);
+    });
+});
+
+gulp.task('build-parser', function() {
+    return gulp.src(parserSrcCode)
+        .pipe(sourcemaps.init())
+        .pipe(babel())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('src/parser/compiled'));
+});
+
+gulp.task('watch-build-parser', function(cb) { // eslint-disable-line no-unused-vars
+    var runSequence = require('run-sequence');
+
+    runSequence('build-parser', function () {
+        gulp.watch(parserSrcCode, ['build-parser']);
     });
 });
 

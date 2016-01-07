@@ -12,7 +12,8 @@ export class PlacesList extends React.Component {
         header: PropTypes.string,
         places: PropTypes.instanceOf(Map),
         filtered: PropTypes.instanceOf(Set), // If its in here, it is filtered in!
-        onSelection: PropTypes.func
+        onSelection: PropTypes.func,
+        countOnly: PropTypes.string
     };
     static defaultProps = fromJS({places: {}, header: '', onSelection: f=>f}).toObject();
     shouldComponentUpdate = shouldPureComponentUpdate;
@@ -36,6 +37,12 @@ export class PlacesList extends React.Component {
         return <div className="PlacesList">
             {this.props.header} ({this.props.places.count()}):
             {this.props.places.map(function mapPlaces(place, name) {
+                //FIXME: Hacky and should be refactored
+                if(that.props.countOnly) {
+                    const counted = {};
+                    counted[that.props.countOnly] = place.get(that.props.countOnly, Map());
+                    place = fromJS(counted);
+                }
                 const isFiltered =  that.props.filtered.count() === 0 ||that.props.filtered.has(name);
                 return <div>
                     <PlaceSummary name={name} pictures={place} isFiltered={isFiltered}

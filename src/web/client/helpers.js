@@ -12,7 +12,9 @@ export function isShown(filters, picture) {
     if (pictureDate === undefined) {
         throw new Error('Picture with no date found ' + picture.toJS());
     }
-    return filters.get('albums').has(picture.get('album')) &&
-        filters.getIn(['date', 'min'], MIN_DATE) <= pictureDate
+    // FIXME: rethink and organize these..
+    return filters.get('albums').has(picture.get('album'))
+        && filters.get('countries').has(picture.getIn(['politics', 'country']))
+        && filters.getIn(['date', 'min'], MIN_DATE) <= pictureDate
         && filters.getIn(['date', 'max'], MAX_DATE) >= pictureDate;
 }

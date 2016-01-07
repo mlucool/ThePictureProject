@@ -9,9 +9,10 @@ import {isShown} from '../helpers';
 export class PictureMap extends React.Component {
     static propTypes = {
         center: PropTypes.instanceOf(Map),
+        inView: PropTypes.instanceOf(Map),
         zoom: PropTypes.number,
         places: PropTypes.instanceOf(Map),
-        zoomCache: PropTypes.instanceOf(List),
+        albums: PropTypes.instanceOf(Map),
         data: PropTypes.instanceOf(List),
         filters: PropTypes.instanceOf(Map)
     };
@@ -19,34 +20,35 @@ export class PictureMap extends React.Component {
         center: {lat: 39.725242779009, lng: -104.976973874},
         zoom: 9,
         places: {},
-        zoomCache: [],
+        inView: {},
+        albums: {},
         data: [],
         filters: {}
     }).toObject();
 
-    _onChange({center, zoom, bounds}) {
+    _onChange = ({center, zoom, bounds}) => {
         // FIXME: This should get refactored outside and be dumb
         this.props.dispatch(setMapBounds(zoom, center, bounds));
-    }
+    };
 
     shouldComponentUpdate = shouldPureComponentUpdate;
 
     constructor(props) {
         super(props);
-        // React components using ES6 classes no longer autobind this to non React methods.
-        this._onChange = this._onChange.bind(this);
     }
 
     render() {
         const that = this;
-        const zoomIdx = that.props.zoom < that.props.zoomCache.count()
-            ? that.props.zoom : that.props.zoomCache.count() - 1;
-        const MARKERS = that.props.zoomCache.get(zoomIdx, List())
-            .filter((val) => {
+        const inBoundsAlbums = that.props.inView.get('albums', List());
+        // Array of arrays
+        const markers = inBoundsAlbums.map((albumName) => {
+            const album = this.props.albums.get(albumName);
+            const zoomIdx = Math.min(that.props.zoom, album.get('zoomCache').count() - 1);
+
+            return album.get('zoomCache').get(zoomIdx, List()).filter((val) => {
                 const data = that.props.data.get(val, Map());
                 return data.has('lat') && data.has('lng') && isShown(this.props.filters, data);
-            })
-            .map(function (val) {
+            }).map(function (val) {
                 const data = that.props.data.get(val, Map());
                 // Strongly assumes that the that.props.data never reorders or shrinks
                 // This makes the key easy!
@@ -57,6 +59,8 @@ export class PictureMap extends React.Component {
                                       dispatch={that.props.dispatch}
                 />
             }).toArray();
+        }).toArray();
+
         return (
             // FIXME: move style
             <div className="pictureMap" style={{position: 'absolute', right: 0, top: 0, width: '70%', height: '100%'}}>
@@ -66,9 +70,10 @@ export class PictureMap extends React.Component {
                     zoom={this.props.zoom}
                     onChange={this._onChange}
                 >
-                    {MARKERS}
+                    {markers}
                 </GoogleMap>
             </div>
         );
     }
 }
+

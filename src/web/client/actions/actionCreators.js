@@ -1,14 +1,5 @@
 import * as consts from './consts';
 
-export function addPlace(place) {
-    return {
-        type: consts.ADD_PLACE,
-        payload: {
-            place
-        }
-    }
-}
-
 export function setMapBounds(zoom, center, bounds) {
     return {
         type: consts.SET_MAP_BOUNDS,
@@ -39,11 +30,11 @@ export function setAlbum(name) {
     }
 }
 
-export function setPlace(name) {
+export function setCountry(name) {
     return {
         type: consts.SET_FILTER_GROUP,
         payload: {
-            filter: 'places',
+            filter: 'countries',
             name
         }
     }
