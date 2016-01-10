@@ -55,22 +55,30 @@ export class YearFilter extends React.Component {
         super(props);
     }
 
+    // move the x to the label
     render() {
         const range = this.getRange();
         const currentFilter = this.getCurrentFilter();
-        return <div className="YearFilter">
+        return <div className='YearFilter'>
             {this.isValid() ?
                 <div>
-                    <DateRangePicker minDate={moment(range.min)} maxDate={moment(range.max)}
-                                     startDate={moment(currentFilter.min)} endDate={moment(currentFilter.max)}
-                                     showDropdowns={true}
-                                     onApply={this._dateSet}>
-                        <p>
-                            Showing from: {this.formatDate(currentFilter.min)} to {this.formatDate(currentFilter.max)}
-                        </p>
+                    <span>Showing from:</span>
+                    <DateRangePicker
+                        minDate={moment(range.min)} maxDate={moment(range.max)}
+                        startDate={moment(currentFilter.min)} endDate={moment(currentFilter.max)}
+                        showDropdowns={true}
+                        onApply={this._dateSet}>
+                        <div className='input-group'>
+                                <span className='input-group-btn'>
+                                    <button className='btn btn-default' onClick={this._clearFilter}>
+                                        <span className='glyphicon glyphicon-remove' aria-hidden='true'></span></button>
+                                </span>
+                            <span type='text' className='form-control'>{this.formatDate(currentFilter.min)}
+                                to {this.formatDate(currentFilter.max)}</span>
+                        </div>
                     </DateRangePicker>
-                    <button onClick={this._clearFilter}>Clear Date Filter</button>
-                </div> :
+                </div>
+                :
                 <p>No Valid Data</p>
             }
         </div>;
