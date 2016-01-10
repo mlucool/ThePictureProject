@@ -28,7 +28,7 @@ const customStyles = {
 };
 
 const fullStyle = {
-    'max-width': '100%',
+    maxWidth: '100%',
     display: 'block'
 };
 

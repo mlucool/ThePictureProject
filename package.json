@@ -64,6 +64,7 @@
     "gulp": "^3.9.0",
     "immutable": "^3.7.5",
     "json-loader": "^0.5.3",
+    "lodash": "^3.10.1",
     "moment": "^2.10.6",
     "object-assign": "^4.0.1",
     "rbush": "^1.4.2",
@@ -74,6 +75,7 @@
     "react-modal": "^0.6.1",
     "react-pure-render": "^1.0.2",
     "react-redux": "^4.0.0",
+    "react-select": "^1.0.0-beta8",
     "redux": "^3.0.4",
     "underscore": "^1.8.3"
   },

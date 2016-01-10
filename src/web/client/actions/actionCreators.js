@@ -20,22 +20,22 @@ export function setSelected(id) {
     }
 }
 
-export function setAlbum(name) {
+export function setAlbum(names) {
     return {
         type: consts.SET_FILTER_GROUP,
         payload: {
             filter: 'albums',
-            name
+            names
         }
     }
 }
 
-export function setCountry(name) {
+export function setCountry(names) {
     return {
         type: consts.SET_FILTER_GROUP,
         payload: {
             filter: 'countries',
-            name
+            names
         }
     }
 }

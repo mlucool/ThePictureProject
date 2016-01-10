@@ -30,8 +30,7 @@ import fsaValidateMiddleware from 'redux-validate-fsa';
  Think about how to make this come from the web
  */
 
-
-
+require('../../../node_modules/react-select/dist/react-select.css')
 // FIXME: Wrap with if development + if window
 window.React = React;
 const finalCreateStore = compose(

@@ -112,10 +112,9 @@ function SetSelected(state, {id}) {
     return state.setIn(['filters', 'selected'], id);
 }
 
-function SetFilterGroup(state, {filter, name}) {
-    return state.updateIn(['filters', filter], function (albums) {
-        return albums.clear().add(name); // Easy for multi-select soon
-    });
+function SetFilterGroup(state, {filter, names}) {
+    // Can be smarter,  but prob not worth it
+    return state.setIn(['filters', filter], Set(names));
 }
 
 function SetDateRange(state, {startDate, endDate}) {
