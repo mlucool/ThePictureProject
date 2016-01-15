@@ -7,8 +7,9 @@ import {List, Map, fromJS} from 'immutable';
 import Griddle from 'griddle-react';
 import moment from 'moment';
 import {isShown} from '../helpers';
-import Modal from 'react-modal';
 import _ from 'underscore';
+import * as consts from '../consts';
+import {ModalPicture} from './ModalPicture';
 
 let aBadHackForData = {};
 const style = {
@@ -16,51 +17,47 @@ const style = {
     height: '50px'
 };
 
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)'
-    }
-};
-
-const fullStyle = {
-    maxWidth: '100%',
-    display: 'block'
-};
 
 // This is a poor way to do it, but it's getting by for now...
-var ImageComp = React.createClass({
-    getInitialState: function () {
-        return {modalIsOpen: false};
-    },
-    openModal: function () {
-        this.setState({modalIsOpen: true});
-    },
+class ImageComp extends React.Component {
+    static propTypes = {
+        data: PropTypes.number.isRequired
+    };
+    static defaultProps = fromJS({}).toObject();
 
-    closeModal: function () {
-        this.setState({modalIsOpen: false});
-    },
+    shouldComponentUpdate = shouldPureComponentUpdate;
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+        this.state.modalIsOpen = false;
+    }
+
+    _openModel = () => {
+        this._setModalOpen(true);
+    };
+
+    _setModalOpen = (open) => {
+        this.setState({modalIsOpen: open});
+    };
+
     // FIXME: This should be a smarter element with a next/prev to see other pictures in the list
-    render: function () {
+    render() {
+        const that = this;
+
         const id = this.props.data;
         const picture = aBadHackForData.get(id, Map());
         const file = picture.get('file');
+        const album = picture.get('album');
+        const location = consts.PICTURE_PATH + album + '/' + file;
         return <div>
-            <img src={'/pictures/' + file} alt={file} style={style} onClick={this.openModal}/>
-            <Modal
-                isOpen={this.state.modalIsOpen}
-                onRequestClose={this.closeModal}
-                style={customStyles}
-            >
-                <img src={'/pictures/' + file} alt={file} onClick={this.closeModal} style={fullStyle}/>
-            </Modal>
+            <img src={location} alt={file} style={style} onClick={that._openModel}/>
+            <ModalPicture picture={picture}
+                          isOpen={that.state.modalIsOpen}
+                          setOpen={that._setModalOpen}/>
         </div>;
     }
-});
+}
 
 export class ScrollingPictureList extends React.Component {
     static propTypes = {

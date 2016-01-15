@@ -1,3 +1,4 @@
+/*global google*/
 /**
  * Created by Marc on 12/6/2015.
  */
@@ -5,6 +6,7 @@ import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import {Map, fromJS} from 'immutable';
 import {setSelected} from '../actions/actionCreators';
+import {ModalPicture} from './ModalPicture';
 
 const K_WIDTH = 60;
 const K_HEIGHT = 60;
@@ -17,12 +19,10 @@ const PictureMarkerStyle = {
     height: K_HEIGHT,
     left: -K_WIDTH / 2,
     top: -K_HEIGHT / 2,
+    backgroundRepeat: 'no-repeat',
 
-    border: '5px solid #f44336',
-    borderRadius: K_HEIGHT,
-    backgroundColor: 'white',
-    textAlign: 'center',
-    color: '#3f51b5',
+    textAlign: 'right',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
     padding: 4
@@ -38,27 +38,46 @@ export default class PictureMarker extends React.Component {
         dispatch: f=>f
     }).toObject();
 
+    static ImageURLS = function getImages() {
+        // 10 so it repeats on the same digit
+        const pinColors = ['FF0000', 'E42CF5', '9E1AEB', '441AEB', '1AACEB', '13D695', '27D613', 'FFF782', 'F5A822', 'FA5D2D', 'FFFFFF'];
+        return pinColors.map(function (pinColor) {
+            return new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + pinColor,
+                new google.maps.Size(21, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34)).url;
+        });
+    }();
+
     shouldComponentUpdate = shouldPureComponentUpdate;
 
     constructor(props) {
         super(props);
-        this._onClick = this._onClick.bind(this);
+        this.state = {};
+        this.state.modalIsOpen = false;
     }
 
-    _onClick() {
-        if(this.props.picture) {
+    _onClick = () => {
+        if (this.props.picture) {
             this.props.dispatch(setSelected(this.props.picture.get('id')));
+            this._setModalOpen(true);
         }
-    }
+    };
+
+    _setModalOpen = (open) => {
+        this.setState({modalIsOpen: open});
+    };
 
     render() {
-        return(
-        <div className="pictureMarker"
-            style={PictureMarkerStyle}
-            onClick={this._onClick}
-        >
-            {this.props.picture.get('file', 'unknown')}
-        </div>
+        const that = this;
+        const imgIndex = that.props.picture.get('date').getFullYear() % PictureMarker.ImageURLS.length;
+        return (
+            <div className="pictureMarker"
+                 style={{...PictureMarkerStyle, backgroundImage: 'url(' + PictureMarker.ImageURLS[imgIndex] + ')'}}
+                 onClick={that._onClick}
+            >
+                <ModalPicture picture={that.props.picture}
+                              isOpen={that.state.modalIsOpen}
+                              setOpen={that._setModalOpen}/>
+            </div>
         );
     }
 }
