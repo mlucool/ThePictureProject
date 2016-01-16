@@ -1,0 +1,290 @@
+[
+  {
+    "album": "Photos",
+    "file": "R0010812.JPG",
+    "date": "2005-09-11T15:34:50.000Z",
+    "alt": 1576,
+    "lat": 39.73849722222222,
+    "lng": -104.98705277777778,
+    "world": [
+      53.34254024691357,
+      97.15855188710763
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 0,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "1-99 E 14th Ave, Denver, CO 80220, USA",
+          "latitude": 39.7384607,
+          "longitude": -104.987053,
+          "extra": {
+            "googlePlaceId": "EiYxLTk5IEUgMTR0aCBBdmUsIERlbnZlciwgQ08gODAyMjAsIFVTQQ",
+            "confidence": 0.9,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Capitol Hill",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "1-99",
+          "streetName": "East 14th Avenue",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80220"
+        }
+      ]
+    }
+  },
+  {
+    "album": "Photos2",
+    "file": "R0010813.JPG",
+    "date": "2005-09-11T15:37:51.000Z",
+    "alt": 1580,
+    "lat": 39.73775555555556,
+    "lng": -104.98928611111111,
+    "world": [
+      53.34095209876543,
+      97.15923774538359
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 1,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "124 W 14th Ave Pkwy, Denver, CO 80204, USA",
+          "latitude": 39.7378082,
+          "longitude": -104.9892594,
+          "extra": {
+            "googlePlaceId": "EioxMjQgVyAxNHRoIEF2ZSBQa3d5LCBEZW52ZXIsIENPIDgwMjA0LCBVU0E",
+            "confidence": 0.9,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Civic Center",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "124",
+          "streetName": "West 14th Avenue Parkway",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80204"
+        }
+      ]
+    }
+  },
+  {
+    "album": "Photos",
+    "file": "R0010816.JPG",
+    "date": "2005-09-11T15:40:50.000Z",
+    "alt": 1576,
+    "lat": 39.73920277777778,
+    "lng": -104.99036944444444,
+    "world": [
+      53.340181728395066,
+      97.15789941582975
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 2,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "1437 Bannock St, Denver, CO 80202, USA",
+          "latitude": 39.7392435,
+          "longitude": -104.9910272,
+          "extra": {
+            "googlePlaceId": "ChIJT6BjmdR4bIcRDp3emwfh9QI",
+            "confidence": 1,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Civic Center",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "1437",
+          "streetName": "Bannock Street",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80202"
+        }
+      ]
+    }
+  },
+  {
+    "album": "Photos",
+    "file": "R0010817.JPG",
+    "date": "2005-09-11T15:43:55.000Z",
+    "alt": 1577,
+    "lat": 39.73934166666667,
+    "lng": -104.99156111111111,
+    "world": [
+      53.339334320987646,
+      97.15777097581494
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 3,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "1438 S Cherokee St, Denver, CO 80204, USA",
+          "latitude": 39.7387228,
+          "longitude": -104.9913569,
+          "extra": {
+            "googlePlaceId": "ChIJ2VX0oNR4bIcRMLMGl6k8MqA",
+            "confidence": 1,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Civic Center",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "1438",
+          "streetName": "South Cherokee Street",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80204"
+        }
+      ]
+    }
+  },
+  {
+    "album": "Photos",
+    "file": "R0010818.JPG",
+    "date": "2005-09-11T15:44:08.000Z",
+    "alt": 1577,
+    "lat": 39.739336111111115,
+    "lng": -104.9916361111111,
+    "world": [
+      53.33928098765432,
+      97.1577761134205
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 4,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "1438 S Cherokee St, Denver, CO 80204, USA",
+          "latitude": 39.7387228,
+          "longitude": -104.9913569,
+          "extra": {
+            "googlePlaceId": "ChIJ2VX0oNR4bIcRMLMGl6k8MqA",
+            "confidence": 1,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Civic Center",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "1438",
+          "streetName": "South Cherokee Street",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80204"
+        }
+      ]
+    }
+  },
+  {
+    "album": "Photos",
+    "file": "R0010819.JPG",
+    "date": "2005-09-11T15:48:07.000Z",
+    "alt": 1570,
+    "lat": 39.73994444444445,
+    "lng": -104.98952777777778,
+    "world": [
+      53.34078024691358,
+      97.15721354315117
+    ],
+    "politics": {
+      "country": "United States",
+      "city": "Denver"
+    },
+    "id": 5,
+    "reverseGeocode": {
+      "provider": "google",
+      "processed": "2016-01-16T14:51:37.837Z",
+      "data": [
+        {
+          "formattedAddress": "144 W Colfax Ave, Denver, CO 80202, USA",
+          "latitude": 39.7397011,
+          "longitude": -104.9895182,
+          "extra": {
+            "googlePlaceId": "ChIJDd-C3tR4bIcR1rdK1ggCwkI",
+            "confidence": 1,
+            "premise": null,
+            "subpremise": null,
+            "neighborhood": "Civic Center",
+            "establishment": null
+          },
+          "administrativeLevels": {
+            "level2long": "Denver County",
+            "level2short": "Denver County",
+            "level1long": "Colorado",
+            "level1short": "CO"
+          },
+          "streetNumber": "144",
+          "streetName": "West Colfax Avenue",
+          "city": "Denver",
+          "country": "United States",
+          "countryCode": "US",
+          "zipcode": "80202"
+        }
+      ]
+    }
+  }
+]

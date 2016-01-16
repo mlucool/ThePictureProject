@@ -8,16 +8,20 @@ module.exports = {
     ],
     module: {
         loaders: [{
-            test: /\.jsx?$/,
+            test: /\.(js|jsx)$/,
             exclude: /node_modules/,
             loader: 'react-hot!babel'
         }, {
             test: /\.css$/,
             loader: 'style!css!autoprefixer?browsers=last 2 versions'
-        }]
+        }, {
+            test: /\.json$/,
+            loader: 'json'
+        }],
+        noParse: /\.min\.js/
     },
     resolve: {
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx', '.css', '.json']
     },
     output: {
         path: __dirname + '/dist',
@@ -30,7 +34,9 @@ module.exports = {
     },
     devtool: 'inline-source-map',
     debug: true,
+    cache: true,
     plugins: [
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoErrorsPlugin()
     ]
 };

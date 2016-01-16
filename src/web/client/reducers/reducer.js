@@ -6,7 +6,7 @@ import moment from 'moment';
 import rbush from 'rbush'; // Helps with performance when there is lots of data
 import _ from 'underscore';
 
-const myData = require('json!../../../data/data.json');
+const myData = require('../../../../assets/data/data.json');
 
 function defaultState() {
     const NOTSET = 'NOT SET';

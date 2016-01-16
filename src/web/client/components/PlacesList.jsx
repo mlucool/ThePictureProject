@@ -24,9 +24,9 @@ export class PlacesList extends React.Component {
     }
 
     _onSelection = (val) => {
-        let selected = _.pluck(val, 'value');
+        let selected = _.map(val, 'value');
         if (selected.length === 0) {
-            selected = _.pluck(this._getOptions(), 'value');
+            selected = _.map(this._getOptions(), 'value');
         }
         this.props.onSelection(selected);
     };

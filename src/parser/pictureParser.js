@@ -21,14 +21,8 @@ const MAX_ZOOM = 20; // Used for zoomCache
 // Only need first 65635 bytes of file - EXIF data will be there
 const MAX_READ_SIZE = 65635;
 
-/* var geocoderProvider = 'google';
- var httpAdapter = 'http';
- // optional
- var extra = {
- apiKey: 'YOUR_API_KEY', // for Mapquest, OpenCage, Google Premier
- formatter: null         // 'gpx', 'string', ...
- }; */
-const geocoder = NodeGeocoder('google');
+const GEOCODE_PROVIDER = 'google';
+const geocoder = NodeGeocoder(GEOCODE_PROVIDER, 'https');
 const records = [];
 const MERCATOR_EXPONENTS = createMercatorExponentCache(MAX_ZOOM);
 const totals = {
@@ -39,13 +33,13 @@ const totals = {
     missingDate: 0,
     albums: 0
 };
-const startingPath = '../../data/pictures';
+const picturesRootPath = '../../data/pictures';
 // Use one of these two
-start();
-//updateData();
+//start();
+updateData(require('../../../assets/data/data.json').records);
 
 function start() { // eslint-disable-line no-unused-vars
-    const walker = walk.walk(startingPath, {followLinks: false});
+    const walker = walk.walk(picturesRootPath, {followLinks: false});
     walker.on('file', maybeAddFile);
     walker.on('errors', errorsHandler); // plural
     walker.on('end', postProcess);
@@ -69,7 +63,7 @@ function maybeAddFile(root, fileStat, next) {
                 const exifData = EXIF.create(buffer).parse();
                 const tags = exifData.tags;
                 const record = {};
-                record.album = path.relative(startingPath, root);
+                record.album = path.relative(picturesRootPath, root);
                 record.file = fileStat.name;
                 let date = tags.DateTimeOriginal;
                 if (date > 0) {
@@ -115,32 +109,37 @@ function errorsHandler(root, nodeStatsArray, next) {
     next();
 }
 
-function reverseGeocode() {
+function reverseGeocode(forceGetGeo = false) {
     // We need to do this because otherwise we spawn
     // records.length http requests, which is very bad
     return co(function *() {
-        const georesults = [];
+        const geoResults = [];
         for (let i = 0; i < records.length; ++i) {
             const record = records[i];
+            if (!forceGetGeo && Object.keys(record.politics || {}).length !== -0) {
+                continue;
+            }
             try {
                 const res = yield geocoder.reverse({lat: record.lat, lon: record.lng});
                 totals.reverseGeocoded.success += 1;
                 if (totals.reverseGeocoded.success % 100 === 0) {
                     console.log('Got GPS data for ' + totals.reverseGeocoded.success + ' pictures');
                 }
-                georesults.push(res);
+                geoResults.push({data: res});
             } catch (err) {
                 totals.reverseGeocoded.rejected += 1;
-                console.log('Error finding data for: ' + description(record) + ' Error: ' + err);
-                georesults.push({});
+                console.log('Error finding data for: ' + description(record) + ': ' + err);
+                geoResults.push({error: err});
             }
         }
-        return georesults;
+        return geoResults;
     });
 }
 
 function parseReverseGeocode(georesults) {
-    georesults.forEach((result, i) => {
+    const TODAY = new Date();
+    georesults.forEach((georesult, i) => {
+        let result = georesult.data || {};
         result = result[0] || {};
         const record = records[i];
         if (!result.country) {
@@ -152,6 +151,12 @@ function parseReverseGeocode(georesults) {
             console.log('Could not find city for ' + description(record));
         }
         record.politics = {country: result.country, city: result.city};
+
+        record.reverseGeocode = {
+            provider: GEOCODE_PROVIDER,
+            processed: TODAY,
+            ...georesult // Expected data: or error:
+        }
     });
 }
 
@@ -202,42 +207,44 @@ function makeUsefulCaches(albums, countries) {
 
     // Create zoomCache
     _.values(albums).forEach(album => album.records.forEach(maybeAddToCache(album)));
-    _.values(countries).forEach(country => _.flatten(_.values(_.omit(country, 'boundingBox', 'noGPS'))).forEach(maybeAddToCache(country)));
+    _.values(countries).forEach(
+        country => _.flatten(_.values(_.omit(country, 'boundingBox', 'noGPS'))).forEach(maybeAddToCache(country)));
 }
 
 function logAndWriteData(albums, countries) {
     totals.totalRecords = records.length;
     totals.albums = Object.keys(albums).length;
-    const data = {records, albums, countries};
+    const data = {records: records.map(r => _.omit(r, 'reverseGeocode')), albums, countries};
+    fs.writeFileSync('records.json', JSON.stringify(records, null, 2), 'utf8');
     fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');
     console.log('Finished!\n' + JSON.stringify(totals, null, 2));
 }
 
 
-function postProcess() {
+function postProcess({skipGeo = false, forceGetGeo = false}) {
     updateParsedLog();
 
     const albums = {};
     const countries = {};
 
-    reverseGeocode().then((georesults) => {
-        parseReverseGeocode(georesults);
+    if (skipGeo) {
         makeUsefulCaches(albums, countries);
         logAndWriteData(albums, countries);
-    }).catch(error => {
-        console.log(error.stack || error);
-    })
+    } else {
+        reverseGeocode(forceGetGeo).then((georesults) => {
+            parseReverseGeocode(georesults);
+            makeUsefulCaches(albums, countries);
+            logAndWriteData(albums, countries);
+        }).catch(error => {
+            console.log(error.stack || error);
+        })
+    }
 }
 
-function updateData() { // eslint-disable-line no-unused-vars
-    const d = require('./data.json').records;
-    d.forEach(record => records.push(record));
+function updateData(recordsToUse) { // eslint-disable-line no-unused-vars
+    _.forEach(recordsToUse, record => records.push(record));
 
-    const albums = {};
-    const countries = {};
-
-    makeUsefulCaches(albums, countries);
-    logAndWriteData(albums, countries);
+    postProcess({forceGetGeo: false});
 }
 
 function maybeAddToCache(owner) {

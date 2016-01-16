@@ -4,9 +4,14 @@ const gulp = require('gulp'),
     Promise = require('bluebird'),
     sourcemaps = require('gulp-sourcemaps'),
     babel = require('gulp-babel'),
+    env = require('gulp-env'),
+    webpack = require('webpack'),
+    WebpackDevServer = require('webpack-dev-server'),
+    _ = require('lodash'),
     jsdoc = require('gulp-jsdoc3');
 
-var jsFiles = ['*.js', 'src/**/*.js', 'src/**/*.jsx', '!./**/node_modules/**/*' , '!./src/parser/compiled/**/*'];
+var jsFiles = ['*.js', 'src/**/*.js', 'src/**/*.jsx', '!./**/node_modules/**/*', '!./src/parser/compiled/**/*'];
+var assets = ['assets/**/*'];
 var parserSrcCode = ['src/parser/**.js'];
 
 gulp.task('lint', function () {
@@ -29,15 +34,19 @@ gulp.task('lint-watch', function () {
     });
 });
 
-gulp.task('build-parser', function() {
+gulp.task('build-parser', function () {
     return gulp.src(parserSrcCode)
         .pipe(sourcemaps.init())
         .pipe(babel())
+        .on('error', function (error) {
+            gutil.log(error.toString());
+            this.emit('end');
+        })
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('src/parser/compiled'));
 });
 
-gulp.task('watch-build-parser', function(cb) { // eslint-disable-line no-unused-vars
+gulp.task('watch-build-parser', function (cb) { // eslint-disable-line no-unused-vars
     var runSequence = require('run-sequence');
 
     runSequence('build-parser', function () {
@@ -45,12 +54,37 @@ gulp.task('watch-build-parser', function(cb) { // eslint-disable-line no-unused-
     });
 });
 
-gulp.task('webpack-dev-server', function (cb) {
-    SpawnTask('node', ['./node_modules/webpack-dev-server/bin/webpack-dev-server.js'])
-        .then(cb, cb);
+gulp.task('copy', function () {
+    return gulp.src(assets)
+        .pipe(gulp.dest('dist/'));
 });
 
-function SpawnTask(cmd, args) {
+gulp.task('webpack-dev-server', function (callback) { //eslint-disable-line no-unused-vars
+    env.set({
+        vars: {
+            'DEBUG': '', // Debugger logging if we need it
+            'NODE_ENV': 'development'
+        }
+    });
+    const config = require('./webpack.config');
+    const port = _.last(config.entry[0].split(':'));
+    const compiler = webpack(config);
+    new WebpackDevServer(compiler, {
+        // Needs to be here and in webpack
+        contentBase: config.devServer.contentBase,
+        hot: true,
+        stats: {colors: true, timings: true, reasons: true}
+        // server and middleware options
+    }).listen(port, '0.0.0.0', function (error) {
+        if (error) {
+            throw new gutil.PluginError('webpack-dev-server', error);
+        }
+        gutil.log('[webpack-dev-server]', 'http://localhost:' + port + '/webpack-dev-server/');
+    });
+    // Ignore callback
+});
+
+function SpawnTask(cmd, args) { //eslint-disable-line no-unused-vars
     // You could get an error then a close or just an error.
     // So we use promises and ignore the second
     return new Promise(function (resolve, reject) {
