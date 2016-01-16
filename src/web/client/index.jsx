@@ -8,7 +8,7 @@ import {PlacesList} from './components/PlacesList';
 import {YearFilter} from './components/YearFilter';
 import {PictureMap} from './components/PictureMap';
 import {PictureInfo} from './components/PictureInfo';
-import {ScrollingPictureList} from './components/ScrollingPictureList';
+import {DebouncedScrollingPictureList} from './components/ScrollingPictureList';
 import {Map, Set, List} from 'immutable';
 import reducer from './reducers/reducer';
 import {createStore, compose, applyMiddleware} from 'redux';
@@ -120,7 +120,7 @@ const ScrollingPictureListContainer = connect(function (state) {
         data: state.get('records', List()),
         filters: state.get('filters', Map())
     }
-})(ScrollingPictureList);
+})(DebouncedScrollingPictureList);
 
 ReactDOM.render(
     <div>

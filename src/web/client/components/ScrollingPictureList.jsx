@@ -158,3 +158,46 @@ export class ScrollingPictureList extends React.Component {
     }
 }
 
+// Maybe make this a decorator/higher ordered function
+export class DebouncedScrollingPictureList extends React.Component {
+    static propTypes = {
+        zoom: PropTypes.number.isRequired,
+        albums: PropTypes.instanceOf(Map),
+        inView: PropTypes.instanceOf(Map),
+        data: PropTypes.instanceOf(List).isRequired,
+        filters: PropTypes.instanceOf(Map).isRequired
+    };
+    // Makes defaults work with all immutable functions
+    static defaultProps = fromJS({}).toObject();
+
+    static ToDebounce = ['zoom', 'inView'];
+
+    shouldComponentUpdate = shouldPureComponentUpdate;
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    // On prop maybe changed
+    componentWillReceiveProps = () => {
+        this.debouncedSetState();
+    };
+
+    // Before initial render
+    componentWillMount = () => {
+        // Set state then debounce it from here on out (consider _.throttle)
+        this.debouncedSetState();
+        this.debouncedSetState = _.debounce(this.debouncedSetState, 300);
+    };
+
+    debouncedSetState = () => {
+        this.setState(_.pick(this.props, DebouncedScrollingPictureList.ToDebounce));
+    };
+
+    render() {
+        const restOfProps = _.omit(this.props, DebouncedScrollingPictureList.ToDebounce);
+        return <ScrollingPictureList {...restOfProps} {...this.state} />
+    }
+}
+
