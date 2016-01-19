@@ -4,7 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import {Set, Map, fromJS} from 'immutable';
+import {Set, Map, List, fromJS} from 'immutable';
 import Select from 'react-select';
 import _ from 'lodash';
 
@@ -39,12 +39,8 @@ export class PlacesList extends React.Component {
                 counted[that.props.countOnly] = place.get(that.props.countOnly, Map());
                 place = fromJS(counted);
             }
-            const pictures = place.reduce(function (previousValue, currentValue) {
-                // If it is an integer, we assume it's a picture id...although would be nicer
-                // to split this for albums and places in the future
-                const count = Number.isInteger(currentValue) ? 1 : currentValue.count();
-                return previousValue + count;
-            }, 0);
+
+            const pictures = place.get('records', List()).count();
             const label = name + ' (' + pictures + ')';
             return {value: name, label: label}
         }).toArray();

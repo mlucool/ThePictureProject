@@ -164,7 +164,8 @@ function getSummaryStore(base = {}) {
     return _.extend({
         zoomCache: _.range(MAX_ZOOM).map(()=> []),
         noGPS: [],
-        boundingBox: {}
+        boundingBox: {},
+        records: []
     }, base);
 }
 function makeUsefulCaches(albums, countries) {
@@ -180,7 +181,7 @@ function makeUsefulCaches(albums, countries) {
         // Update Album
         let album = albums[record.album];
         if (!album) {
-            album = getSummaryStore({records: []});
+            album = getSummaryStore();
             albums[record.album] = album;
         }
         album.records.push(idx);
@@ -196,6 +197,7 @@ function makeUsefulCaches(albums, countries) {
                 } else {
                     country[city] = [idx];
                 }
+                country.records.push(idx);
                 updateBoundingBox(country.boundingBox, record);
                 countries[record.politics.country] = country;
             } else {
@@ -207,8 +209,7 @@ function makeUsefulCaches(albums, countries) {
 
     // Create zoomCache
     _.values(albums).forEach(album => album.records.forEach(maybeAddToCache(album)));
-    _.values(countries).forEach(
-        country => _.flatten(_.values(_.omit(country, 'boundingBox', 'noGPS'))).forEach(maybeAddToCache(country)));
+    _.values(countries).forEach(country => country.records.forEach(maybeAddToCache(country)));
 }
 
 function logAndWriteData(albums, countries) {
