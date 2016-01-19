@@ -59,6 +59,21 @@ gulp.task('copy', function () {
         .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('webpack-dev', function (callback) {
+    env.set({
+        vars: {
+            'DEBUG': '', // Debugger logging if we need it
+            'NODE_ENV': 'development'
+        }
+    });
+    const config = require('./webpack.config');
+    webpack(config).run(function (err, stats) {
+        if (err) throw new gutil.PluginError('webpack:build-dev', err);
+        gutil.log('[webpack:build-dev]', stats.toString({colors: true, timings: true, reasons: true}));
+        callback();
+    });
+});
+
 gulp.task('webpack-dev-server', function (callback) { //eslint-disable-line no-unused-vars
     env.set({
         vars: {

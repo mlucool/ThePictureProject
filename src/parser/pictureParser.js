@@ -33,16 +33,16 @@ const totals = {
     missingDate: 0,
     albums: 0
 };
-const picturesRootPath = '../../data/pictures';
+const picturesRootPath = '../../../assets/data/pictures';
 // Use one of these two
-//start();
-updateData(require('../../../assets/data/data.json').records);
+start();
+//updateData(require('../../../assets/data/data.json').records);
 
 function start() { // eslint-disable-line no-unused-vars
     const walker = walk.walk(picturesRootPath, {followLinks: false});
     walker.on('file', maybeAddFile);
     walker.on('errors', errorsHandler); // plural
-    walker.on('end', postProcess);
+    walker.on('end', postProcess.bind(this, {}));
 }
 
 // Create this once, its ok since we know this will wait till next before being called again
@@ -214,6 +214,7 @@ function makeUsefulCaches(albums, countries) {
 function logAndWriteData(albums, countries) {
     totals.totalRecords = records.length;
     totals.albums = Object.keys(albums).length;
+    totals.countries = Object.keys(countries).length;
     const data = {records: records.map(r => _.omit(r, 'reverseGeocode')), albums, countries};
     fs.writeFileSync('records.json', JSON.stringify(records, null, 2), 'utf8');
     fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');

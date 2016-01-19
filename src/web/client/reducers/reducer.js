@@ -46,8 +46,8 @@ function defaultState() {
 
     const state = fromJS({
         googlemap: {
-            center: {lat: 39.725242779009, lng: -104.976973874}, // Denver
-            zoom: 11,
+            center: {lat: 21.935, lng: 37.192}, // Denver
+            zoom: 3,
             bounds: undefined
         },
         records: myData.records,
