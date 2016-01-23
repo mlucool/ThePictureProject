@@ -8,8 +8,8 @@ import {Map, fromJS} from 'immutable';
 import {setSelected} from '../actions/actionCreators';
 import {ModalPicture} from './ModalPicture';
 
-const K_WIDTH = 60;
-const K_HEIGHT = 60;
+const K_WIDTH = 35;
+const K_HEIGHT = 35;
 
 const PictureMarkerStyle = {
     // initially any map object has left top corner at lat lng coordinates
