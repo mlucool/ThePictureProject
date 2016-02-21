@@ -66,10 +66,24 @@ gulp.task('webpack-dev', function (callback) {
             'NODE_ENV': 'development'
         }
     });
-    const config = require('./webpack.config');
+    const config = require('./webpack.config').dev;
     webpack(config).run(function (err, stats) {
-        if (err) throw new gutil.PluginError('webpack:build-dev', err);
-        gutil.log('[webpack:build-dev]', stats.toString({colors: true, timings: true, reasons: true}));
+        if (err) throw new gutil.PluginError('webpack-dev', err);
+        gutil.log('[webpack-dev]', stats.toString({colors: true, timings: true, reasons: true}));
+        callback();
+    });
+});
+
+gulp.task('webpack', function (callback) {
+    env.set({
+        vars: {
+            'NODE_ENV': 'production'
+        }
+    });
+    const config = require('./webpack.config').prod;
+    webpack(config).run(function (err, stats) {
+        if (err) throw new gutil.PluginError('webpack', err);
+        gutil.log('[webpack]', stats.toString({colors: true, timings: true, reasons: true}));
         callback();
     });
 });
@@ -81,7 +95,7 @@ gulp.task('webpack-dev-server', function (callback) { //eslint-disable-line no-u
             'NODE_ENV': 'development'
         }
     });
-    const config = require('./webpack.config');
+    const config = require('./webpack.config').dev;
     const port = _.last(config.entry[0].split(':'));
     const compiler = webpack(config);
     new WebpackDevServer(compiler, {

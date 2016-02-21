@@ -1,6 +1,7 @@
 # The Picture Project
 A react project visualize/filter all your pictures on on google maps. It includes a parser to read EXIF GPS data then reverse geocode them to list countries. Clicking on the markers bring up the selected photo!
 
+Example running here: [http://pictures.mlucool.com/](http://pictures.mlucool.com/)
 ## Status
 This works locally with many known bugs. Overall it does work enough. I have tested with ~25k pictures and it was slower than I would like, but worked.
 
@@ -13,7 +14,6 @@ Next copy the assets over ```gulp copy`` then run webpack-dev-server ```gulp web
 ## Known issues include
 * No way to see multiple points at same location
 * CSS issues
-* Search could make some points that should appear not appear (due to agressive pre-data checks)
+* Search could make some points that should appear not appear (due to aggressive pre-data checks)
 * Things without GPS data should be treated specially
 * Lag on large data sets
-* Testing on a real server
