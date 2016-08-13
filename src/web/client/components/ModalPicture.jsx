@@ -3,7 +3,7 @@
  */
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import {Map, fromJS} from 'immutable';
+import {Map, List, fromJS} from 'immutable';
 import * as consts from '../consts';
 import Modal from 'react-modal';
 import moment from 'moment';
@@ -45,11 +45,13 @@ export class ModalPicture extends React.Component {
     static propTypes = {
         picture: PropTypes.instanceOf(Map),
         isOpen: PropTypes.bool,
+        albums: PropTypes.instanceOf(Map),
+        data: PropTypes.instanceOf(List),
         setOpen: PropTypes.func
     };
     // Makes defaults work with all immutable functions
     static defaultProps = fromJS({
-        picture: {},
+        pictures: [],
         isOpen: true,
         setOpen: f=>f
     }).toObject();
@@ -58,7 +60,23 @@ export class ModalPicture extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {currentIdx: 0, currentAlbum: 0};
     }
+
+    componentWillReceiveProps = (nextProps) => { // eslint-disable-line
+        let albumIndex = 0;
+        const picture = nextProps.picture || Map();
+        const currentAlbum = nextProps.albums && nextProps.albums.get(picture.get('album'));
+        const records = currentAlbum && currentAlbum.get('records');
+        if (records) {
+            albumIndex = records.indexOf(picture.id);
+        }
+        this.setState({
+            albumIndex: albumIndex,
+            currentAlbum: currentAlbum
+        });
+
+    };
 
     openModal = () => {
         this.props.setOpen(true);
@@ -68,10 +86,31 @@ export class ModalPicture extends React.Component {
         this.props.setOpen(false);
     };
 
+    nextPicture = () => {
+        const nextIndex = this.state.currentAlbum ?
+        (this.state.albumIndex + 1) % this.state.currentAlbum.get('records').size : 0;
+        this.setState({
+            albumIndex: nextIndex
+        });
+    };
+
+    prevPicture = () => {
+        let nextIndex = this.state.albumIndex - 1;
+        if (nextIndex < 0) {
+            nextIndex = this.state.currentAlbum ? this.state.currentAlbum.get('records').size - 1 : 0;
+        }
+        this.setState({
+            albumIndex: nextIndex
+        });
+    };
+
     render() {
         const that = this;
-        const file = that.props.picture.get('file');
-        const album = that.props.picture.get('album');
+        const pictureIndex = that.state.currentAlbum ? that.state.currentAlbum.getIn(['records', that.state.albumIndex], -1) : -1;
+        const numRecords = that.state.currentAlbum ? this.state.currentAlbum.get('records').size : 0;
+        const picture = pictureIndex === -1 ? this.props.picture : that.props.data.get(pictureIndex);
+        const file = picture.get('file');
+        const album = picture.get('album');
         return <div className="ModalPicture">
             <Modal
                 isOpen={that.props.isOpen}
@@ -81,9 +120,10 @@ export class ModalPicture extends React.Component {
                 <div className="row">
                     <p className="col-sm-3 col-lg-2">
                         File: {file}<br/>
-                        Album: {album}<br/>
-                        Date: {moment(that.props.picture.get('date')).format('MMMM Do YYYY, h:mm:ss a')}<br/>
-                        This was {moment(that.props.picture.get('date')).fromNow()}
+                        Album: {album} ({that.state.albumIndex + 1}/{numRecords})<br/>
+                        Date: {moment(picture.get('date')).format('MMMM Do YYYY, h:mm:ss a')}<br/>
+                        This was {moment(picture.get('date')).fromNow()}<br/>
+                        <a onClick={that.prevPicture}>prev</a>&nbsp;&nbsp;&nbsp;<a onClick={that.nextPicture}>next</a>
                     </p>
                     <img src={consts.PICTURE_PATH + album + '/' + file} alt={file} onClick={that.closeModal}
                          style={fullStyle} className="col-sm-9 col-lg-10"/>

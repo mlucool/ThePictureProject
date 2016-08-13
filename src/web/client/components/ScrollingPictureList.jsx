@@ -7,7 +7,7 @@ import {List, Map, fromJS} from 'immutable';
 import Griddle from 'griddle-react';
 import moment from 'moment';
 import {isShown} from '../helpers';
-import _ from 'underscore';
+import _ from 'lodash';
 import * as consts from '../consts';
 import {ModalPicture} from './ModalPicture';
 
@@ -46,13 +46,15 @@ class ImageComp extends React.Component {
         const that = this;
 
         const id = this.props.data;
-        const picture = aBadHackForData.get(id, Map());
+        const picture = aBadHackForData.data.get(id, Map());
         const file = picture.get('file');
         const album = picture.get('album');
         const location = consts.PICTURE_PATH + album + '/' + file;
         return <div>
             <img src={location} alt={file} style={style} onClick={that._openModel}/>
             <ModalPicture picture={picture}
+                          albums={aBadHackForData.albums}
+                          data={aBadHackForData.data}
                           isOpen={that.state.modalIsOpen}
                           setOpen={that._setModalOpen}/>
         </div>;
@@ -79,7 +81,7 @@ export class ScrollingPictureList extends React.Component {
     render() {
         const that = this;
 
-        aBadHackForData = that.props.data;
+        aBadHackForData = {data: that.props.data, albums: that.props.albums};
 
         const columnMetadata = [
             {
@@ -132,17 +134,20 @@ export class ScrollingPictureList extends React.Component {
                     if (picture.has(metadata)) {
                         let data = picture.get(metadata);
                         switch (metadata) {
-                        case 'date': {
-                            data = moment(data).format('YYYY');
-                            break;
-                        }
-                        case 'politics': {
-                            data = data.get('country', '??');
-                            break;
-                        }
-                        case 'album': {
-                            data = that.props.filters.get('selected') === val ? data + '<--' : data;
-                        }
+                            case 'date':
+                            {
+                                data = moment(data).format('YYYY');
+                                break;
+                            }
+                            case 'politics':
+                            {
+                                data = data.get('country', '??');
+                                break;
+                            }
+                            case 'album':
+                            {
+                                data = that.props.filters.get('selected') === val ? data + '<--' : data;
+                            }
                         }
                         row = row.set(metadata, data);
                     }

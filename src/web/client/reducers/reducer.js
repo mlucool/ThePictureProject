@@ -4,7 +4,7 @@ import * as consts from '../actions/consts'
 import {Set, fromJS} from 'immutable';
 import moment from 'moment';
 import rbush from 'rbush'; // Helps with performance when there is lots of data
-import _ from 'underscore';
+import _ from 'lodash';
 
 const myData = require('../../../../assets/data/data.json');
 

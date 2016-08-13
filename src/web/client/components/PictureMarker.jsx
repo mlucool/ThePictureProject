@@ -4,7 +4,7 @@
  */
 import React, {PropTypes} from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import {Map, fromJS} from 'immutable';
+import {Map, List, fromJS} from 'immutable';
 import {setSelected} from '../actions/actionCreators';
 import {ModalPicture} from './ModalPicture';
 
@@ -31,6 +31,8 @@ const PictureMarkerStyle = {
 export default class PictureMarker extends React.Component {
     static propTypes = {
         picture: PropTypes.instanceOf(Map),
+        data: PropTypes.instanceOf(List), // FIXME: Remove this after we refactor ModalDialog
+        albums: PropTypes.instanceOf(Map), // FIXME: Remove this after we refactor ModalDialog
         dispatch: PropTypes.func
     };
     static defaultProps = fromJS({
@@ -75,6 +77,8 @@ export default class PictureMarker extends React.Component {
                  onClick={that._onClick}
             >
                 <ModalPicture picture={that.props.picture}
+                              albums={that.props.albums}
+                              data={that.props.data}
                               isOpen={that.state.modalIsOpen}
                               setOpen={that._setModalOpen}/>
             </div>

@@ -56,6 +56,8 @@ export class PictureMap extends React.Component {
                                       lat={data.get('lat')}
                                       lng={data.get('lng')}
                                       picture={data}
+                                      data={that.props.data}
+                                      albums={that.props.albums}
                                       dispatch={that.props.dispatch}
                 />
             }).toArray();

@@ -63,7 +63,7 @@ const YearFilterContainer = connect(function (state) {
         years: state.getIn(['stats', 'date'], Map()),
         dateFilter: state.getIn(['filters', 'date'], Map()),
         setDateFilter: setDateFilter
-    }
+    };
 })(YearFilter);
 
 function onCountrySelected(name) {
@@ -75,7 +75,7 @@ const PlacesListContainer = connect(function (state) {
         places: state.get('countries', Map()),
         filtered: state.getIn(['filters', 'countries'], Set()),
         onSelection: onCountrySelected
-    }
+    };
 })(PlacesList);
 
 function onAlbumSelected(name) {
@@ -88,7 +88,7 @@ const AlbumListContainer = connect(function (state) {
         countOnly: 'records',
         filtered: state.getIn(['filters', 'albums'], Set()),
         onSelection: onAlbumSelected
-    }
+    };
 })(PlacesList);
 
 const PictureMapContainer = connect(function (state) {
@@ -101,7 +101,7 @@ const PictureMapContainer = connect(function (state) {
         albums: state.get('albums', List()),
         data: state.get('records', List()),
         filters: state.get('filters', Map())
-    }
+    };
 })(PictureMap);
 
 const PictureInfoContainer = connect(function (state) {
@@ -109,7 +109,7 @@ const PictureInfoContainer = connect(function (state) {
     const picture = Number.isInteger(selected) ? state.get('records', List()).get(selected) : Map();
     return {
         picture: picture
-    }
+    };
 })(PictureInfo);
 
 const ScrollingPictureListContainer = connect(function (state) {
@@ -119,7 +119,7 @@ const ScrollingPictureListContainer = connect(function (state) {
         albums: state.get('albums', List()),
         data: state.get('records', List()),
         filters: state.get('filters', Map())
-    }
+    };
 })(DebouncedScrollingPictureList);
 
 ReactDOM.render(
